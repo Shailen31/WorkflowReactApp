@@ -1,6 +1,6 @@
 name: ci
 
-on: 
+on:
   pull_request:
     branches: [develop]
   push:
@@ -16,8 +16,7 @@ jobs:
         with:
           node-version: "12.x"
       - run: npm ci
-      - run: npm run format:check
-      - run: npm run format
+      - run: npm run format:check # remember to check and run the format command before you push else the  build will fail
       - run: npm test -- --coverage
         env:
           CI: true
