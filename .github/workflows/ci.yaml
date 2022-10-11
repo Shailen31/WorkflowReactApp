@@ -20,12 +20,14 @@ jobs:
       - run: npm test -- --coverage
         env:
           CI: true
-      - name: Build Project 
+      - name: Build Project
         if: github.event_name == 'push'
-        run: npm run build 
+        run: npm run build
       - name: Install surge
         run: npm install -g surge
-      - name: Deploy to Surge 
+      - name: Deploy to Surge
         if: github.event_name == 'push'
-        run: surge 
-
+        run: surge --project ./build --domain obsolete-talk.surge.sh # remember when you run surge locally you have to provide with the project directory (build folder)  and get the URL for the domain
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
