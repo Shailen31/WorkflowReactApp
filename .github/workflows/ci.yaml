@@ -8,7 +8,12 @@ on:
       - "**"
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        node-version: [8, 10, 16]
+      fail-fast: true
+    runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v2
       # - name: Cache node_modules
@@ -18,7 +23,7 @@ jobs:
       - name: Use NodeJs
         uses: actions/setup-node@v1
         with:
-          node-version: "12.x"
+          node-version: ${{matrix.node_version}}
       - run: npm ci
       - run: npm run format:check # remember to check and run the format command before you push else the  build will fail
       - run: npm test -- --coverage
