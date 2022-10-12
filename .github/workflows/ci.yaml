@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - "**"
+  schedule:
+    - cron: "0/5 * * * *" #run workflow every 5 mins.
 jobs:
   build:
     strategy:
@@ -15,13 +17,13 @@ jobs:
       fail-fast: true
     runs-on: ${{matrix.os}}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # - name: Cache node_modules
       #   uses: actions/cache@v1
       #   with:
       #     path: ~/.npm
       - name: Use NodeJs
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{matrix.node_version}}
       - run: npm ci
@@ -30,7 +32,7 @@ jobs:
         env:
           CI: true
       - name: Upload Test Coverage
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: code-coverage #file name
           path: coverage
@@ -38,7 +40,7 @@ jobs:
         if: github.event_name == 'push'
         run: npm run build
       - name: Upload Build artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: build #file name
           path: build
