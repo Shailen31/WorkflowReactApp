@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches:
+      - "**"
+  schedule:
+    - cron: "0/5 * * * *" #run workflow every 5 mins.
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [12, 14, 16]
+      fail-fast: true
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v3
+      # - name: Cache node_modules
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ~/.npm
+      - name: Use NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node_version}}
+      - run: npm ci
+      - run: npm run format:check # remember to check and run the format command before you push else the  build will fail
+      - run: npm test -- --coverage
+        env:
+          CI: true
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage #file name
+          path: coverage
+      - name: Build Project
+        if: github.event_name == 'push'
+        run: npm run build
+      - name: Upload Build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build #file name
+          path: build
+      - name: Install surge
+        run: npm install -g surge
+      - name: Deploy to Surge
+        if: github.event_name == 'push'
+        run: surge --project ./build --domain obsolete-talk.surge.sh # remember when you run surge locally you have to provide with the project directory (build folder)  and get the URL for the domain
+        env:
+          SURGE_LOGIN: ${{secrets.SURGE_LOGIN}}
+          SURGE_TOKEN: ${{secrets.SURGE_TOKEN}}
